@@ -8,7 +8,6 @@ et au Bénin.
 Conçu par **Mahamadou Issiaka MAIGA**, dit **MAIGUS**.
 
 🔗 Site officiel du projet AYNEHA : https://ayneha-songhay.github.io/
-🔗 Cette application en ligne : *(ajoute ici le lien une fois publié via GitHub Pages)*
 
 ## Fonctionnalités
 
