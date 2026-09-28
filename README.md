@@ -1,56 +1,26 @@
-# AYNEHA-CALENDRIER
+# Horloge et calendrier AYNEHA
 
-Horloge et calendrier **PWA** (application web progressive) affichant l'heure, le jour, le
-mois et l'année en direct, entièrement dans l'écriture **AYNEHA** - le système d'écriture
-original créé pour transcrire la langue songhay, parlée au Mali, au Niger, au Burkina Faso
-et au Bénin.
+Horloge et calendrier en direct où l'heure, le jour, le mois et l'année s'affichent en **écriture AYNEHA** (lettres et chiffres).
 
-Conçu par **Mahamadou Issiaka MAIGA**, dit **MAIGUS**.
+*Live clock and calendar displaying time, day, month and year in the AYNEHA script.*
 
-🔗 Site officiel du projet AYNEHA : https://ayneha-songhay.github.io/
+**En ligne / Live : https://maigus223.github.io/AYNEHA-CALENDRIER/**
 
-## Fonctionnalités
+## Notes
+- 7 jours et 12 mois songhay transcrits en AYNEHA.
+- Année songhay = année grégorienne + 2001.
+- Version actuelle : calendrier grégorien ; une version lunaire songhay est envisagée.
+- Application web installable (PWA), sans dépendance.
 
-- **Horloge en direct** (heures : minutes : secondes) en glyphes AYNEHA
-- **Calendrier navigable** (mois précédent / suivant) avec le jour du jour mis en évidence
-- **Jour, mois et année** affichés en écriture AYNEHA, sens de lecture droite-à-gauche
-- **Année songhay** calculée automatiquement (année grégorienne + 2001)
-- **Aucun caractère latin** : tout le contenu affiché est en glyphes AYNEHA (U+E000-U+E061)
-- **Installable** sur l'écran d'accueil Android et iOS ("Ajouter à l'écran d'accueil")
-- **Fonctionne hors connexion** grâce au service worker
-- **Adaptatif** : bascule automatiquement entre les dispositions paysage et portrait selon
-  l'orientation réelle de l'écran
+## Contribuer
+Suggestions et corrections (noms de jours ou de mois, calendrier) bienvenues via les *Issues*.
 
-## Structure
+## Licence / License
 
-```
-ayneha-calendrier/
-├── index.html          # L'application (horloge + calendrier)
-├── manifest.json        # Manifeste PWA (nom, icônes, couleurs)
-├── service-worker.js    # Mise en cache pour le fonctionnement hors-ligne
-├── ayneha_regular.ttf   # Police AYNEHA (glyphes U+E000-U+E061)
-└── icons/                # Icônes de l'application (192px, 512px, versions maskable)
-```
+- **Code** : GNU GPL v3.0 ou ultérieure (voir [LICENSE](LICENSE)). Vous pouvez utiliser, étudier, modifier et partager ce code, à condition que toute version dérivée que vous distribuez reste libre sous la même licence. / Code: GNU GPL v3.0 or later. Derived versions you distribute must remain free under the same license.
+- **Police AYNEHA (Ayneha Type)** : SIL Open Font License 1.1 (fichier `OFL.txt` à conserver avec la police). / Font: SIL OFL 1.1.
+- **Nom « AYNEHA », logos et identité visuelle** : non couverts par la GPL ; me contacter avant tout usage commercial ou en tant que marque. / The AYNEHA name, logos and visual identity are not covered by the GPL.
 
-## Installation sur smartphone
-
-1. Ouvrir le lien de l'application dans le navigateur du téléphone (Chrome sur Android,
-   Safari sur iOS).
-2. Utiliser le menu du navigateur puis choisir **"Ajouter à l'écran d'accueil"**
-   (ou **"Installer l'application"** si la proposition apparaît automatiquement).
-3. L'icône Horloge AYNEHA apparaît alors sur l'écran d'accueil, comme une application native.
-
-## Hébergement
-
-Ce dépôt est conçu pour être publié directement via **GitHub Pages** :
-
-1. Aller dans **Settings → Pages** du dépôt.
-2. Choisir la branche `main` et le dossier racine (`/`).
-3. Enregistrer - le site est alors accessible à l'adresse fournie par GitHub.
-
-## Licence / crédits
-
-- Alphabet et police AYNEHA : © Mahamadou Issiaka MAIGA (MAIGUS)
-- Icône de l'application : Icons8
-
-© 2026 AYNEHA - Mahamadou Issiaka MAIGA (MAIGUS)
+**Concepteur et créateur : Mahamadou Issiaka MAIGA (MAIGUS)**
+Contact : gwokmt2q@duck.com
+Site officiel : https://ayneha-songhay.github.io/ · Omniglot : https://www.omniglot.com/conscripts/ayneha.htm
