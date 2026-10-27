@@ -450,8 +450,11 @@ function timeText(now, withSeconds){
   if (withSeconds) t += ':' + num2(now.getSeconds());
   return t;
 }
-function lunarText(l){ return num(l.d) + ' ' + LUNAR_MONTHS[l.m-1]; }
-function gregText(y,m,d){ return num(d) + '.' + num(m) + '.' + num(y + GREG_YEAR_OFFSET); }
+// Ordre songhay : mois, puis jour, puis année (le mois se lit en premier, à droite).
+function lunarText(l){ return LUNAR_MONTHS[l.m-1] + ' ' + num(l.d); }
+function gregText(y,m,d){ return num2(m) + '/' + num2(d) + '/' + num(y + GREG_YEAR_OFFSET); }
+// « Mardi 15 » : nom du jour, puis numéro du jour.
+function dayNumText(dow, d){ return DAYS_FULL[dow] + ' ' + num(d); }
 
 /* --- Cadran à aiguilles --- */
 const dial = $('dial');
@@ -515,7 +518,7 @@ function tick(){
 function renderToday(now, lun){
   put($('dayName'), DAYS_FULL[now.getDay()]);
   drawMoon($('moonToday'), now);
-  $('lunarDate').replaceChildren(ay(num(lun.d)), ay(LUNAR_MONTHS[lun.m-1]));
+  $('lunarDate').replaceChildren(ay(LUNAR_MONTHS[lun.m-1]), ay(num(lun.d)));
   put($('lunarYear'), num(lun.y));
   put($('gregDate'), gregText(now.getFullYear(), now.getMonth()+1, now.getDate()));
 }
@@ -553,7 +556,7 @@ function renderCalendar(){
   let gy = g0.y, gm = g0.m;
   while (true) {
     if (cl.childNodes.length) { const d = document.createElement('span'); d.className = 'dot'; d.textContent = '|'; cl.appendChild(d); }
-    cl.appendChild(ay(num(gm) + '.' + num(gy + GREG_YEAR_OFFSET)));
+    cl.appendChild(ay(num2(gm) + '/' + num(gy + GREG_YEAR_OFFSET)));
     if (gy === g1.y && gm === g1.m) break;
     gm++; if (gm > 12) { gm = 1; gy++; }
     if (cl.childNodes.length > 6) break;
@@ -620,8 +623,8 @@ function openDay(y, m, d){
   renderCalendar();
   const date = new Date(y, m, d, 12);
   const lun = lunarOf(y, m+1, d);
-  put($('dsDayName'), DAYS_FULL[date.getDay()]);
-  put($('dsLunar'), lunarText(lun));
+  put($('dsDayName'), dayNumText(date.getDay(), lun.d));
+  put($('dsLunar'), LUNAR_MONTHS[lun.m-1]);
   put($('dsYear'), num(lun.y));
   drawMoon($('dsMoon'), date);
   put($('dsGreg'), gregText(y, m+1, d));
@@ -656,8 +659,8 @@ try { if (localStorage.getItem('dialMode') === '1') setDial(true); } catch(e) {}
 let wakeLock = null;
 function renderNight(now, lun){
   put($('nTime'), timeText(now, false));
-  put($('nDay'), DAYS_FULL[now.getDay()]);
-  put($('nLunar'), lunarText(lun));
+  put($('nDay'), dayNumText(now.getDay(), lun.d));
+  put($('nLunar'), LUNAR_MONTHS[lun.m-1]);
   drawMoon($('nMoon'), now);
 }
 async function setNight(on){
@@ -705,8 +708,8 @@ async function makeShareImage(){
   };
   const now = new Date(), lun = lunarNow(now);
   rtl(timeText(now, false), 190, '#ff8a3d', 330);
-  rtl(DAYS_FULL[now.getDay()], 96, '#f3ece0', 500);
-  rtl(lunarText(lun), 110, '#ff8a3d', 650);
+  rtl(dayNumText(now.getDay(), lun.d), 96, '#f3ece0', 500);
+  rtl(LUNAR_MONTHS[lun.m-1], 110, '#ff8a3d', 650);
   rtl(num(lun.y), 96, '#f3ece0', 790);
   rtl(gregText(now.getFullYear(), now.getMonth()+1, now.getDate()), 60, '#b9c0cf', 900);
 
