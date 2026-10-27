@@ -71,6 +71,7 @@
   }
   .ico svg{width:1.35rem;height:1.35rem;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
   .ico:active,.ico.on{background:var(--orange-glow);color:var(--orange-soft);border-color:var(--orange);}
+  .ico.idle{opacity:0.35;pointer-events:none;}
   .ico.warn{color:var(--orange);border-color:var(--orange);}
   .bar .grow{flex:1;}
 
@@ -168,7 +169,7 @@
 <body>
 
 <div class="bar" id="bar">
-  <span class="ico" id="btnToday" role="button" aria-label="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+  <span class="ico" id="btnToday" role="button" aria-label="today"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="2" fill="currentColor"/></svg></span>
   <span class="ico" id="btnDial" role="button" aria-label="dial"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
   <span class="ico" id="btnNight" role="button" aria-label="night"><svg viewBox="0 0 24 24"><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.8"/></svg></span>
   <span class="ico" id="btnShare" role="button" aria-label="share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg></span>
@@ -539,6 +540,8 @@ function setViewToToday(){
 function renderCalendar(){
   const now = new Date();
   const span = lunarMonthSpan(viewY, viewM);
+  const t = jdToIsl(gregToJd(now.getFullYear(), now.getMonth()+1, now.getDate()) - adjust());
+  $('btnToday').classList.toggle('idle', t.y === viewY && t.m === viewM && !selectedKey);
 
   // Titre : le mois lunaire songhay et son jiiri.
   $('calGreg').replaceChildren(ay(LUNAR_MONTHS[viewM-1]), ay(' ' + num(viewY + LUNAR_YEAR_OFFSET)));
