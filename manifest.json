@@ -1,14 +1,14 @@
 {
-  "name": "Horloge AYNEHA",
-  "short_name": "Horloge AYNEHA",
-  "description": "Horloge et calendrier AYNEHA en direct : heure, jour, mois et année dans l'écriture songhay.",
+  "name": "AYNEHA Horloge",
+  "short_name": "AYNEHA Horloge",
+  "description": "Horloge et calendrier AYNEHA : heure, jour, mois grégorien et mois lunaire songhay, en écriture AYNEHA.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0b1526",
   "theme_color": "#0b1526",
-  "lang": "fr",
+  "lang": "ses",
   "dir": "rtl",
   "icons": [
     {
@@ -35,5 +35,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "version": "2.0"
 }

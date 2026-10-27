@@ -1,0 +1,11 @@
+AYNEHA Horloge - version web 2.0 (même page que l application Android)
+
+Copier tel quel à la racine du dépôt AYNEHA-CALENDRIER (ou dans le dossier
+de l Horloge sur ayneha.org) : index.html, ayneha_pro.ttf, manifest.json,
+service-worker.js, version.txt, icons/, LICENSE, OFL.txt
+
+L ancienne police ayneha_regular.ttf n est plus utilisée (encodage Plan 16).
+A chaque mise en ligne : changer le même numéro dans version.txt,
+manifest.json ("version") et service-worker.js (VERSION).
+
+(c) 2026 MAIGUS - gwokmt2q@duck.com

@@ -1,311 +1,762 @@
 <!doctype html>
-<html lang="fr">
+<!-- SPDX-License-Identifier: GPL-3.0-or-later
+     Copyright (C) 2026 MAIGUS (Mahamadou Issiaka MAIGA)
+     AYNEHA Horloge - page commune au site et à l'application Android. -->
+<html lang="ses" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Horloge AYNEHA</title>
-<meta name="description" content="Horloge et calendrier AYNEHA en direct : heure, jour, mois et année dans l'écriture songhay.">
+<title>AYNEHA Horloge</title>
+<meta name="description" content="Horloge et calendrier AYNEHA : heure, jour, mois grégorien et mois lunaire songhay, en écriture AYNEHA.">
 <meta name="theme-color" content="#0b1526">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Horloge AYNEHA">
+<meta name="apple-mobile-web-app-title" content="AYNEHA Horloge">
 <style>
   @font-face{
     font-family:"AYNEHA";
-    src:url("ayneha_regular.ttf") format("truetype");
-    font-display:swap;
+    src:url("ayneha_pro.ttf") format("truetype");
+    font-display:block;
   }
 
   :root{
-    --indigo-950:#0b1526;
-    --indigo-900:#101b30;
-    --indigo-800:#182642;
-    --sand:#f1e8d8;
-    --sand-dim:#d9cdb4;
-    --gold:#c6912f;
-    --gold-bright:#e0ac47;
-    --line:rgba(241,232,216,0.14);
+    --night-950:#08101e;
+    --night-900:#0b1526;
+    --night-800:#13213a;
+    --night-700:#1c2d4c;
+    --ink:#f3ece0;
+    --ink-dim:#b9c0cf;
+    --orange:#ff6a13;
+    --orange-soft:#ff8a3d;
+    --orange-glow:rgba(255,106,19,0.18);
+    --line:rgba(243,236,224,0.13);
+    --moon-lit:#f6e7c8;
+    --moon-dark:#22324f;
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{height:100%;}
+  html{background:var(--night-950);}
   body{
-    background:var(--indigo-900);
-    color:var(--sand);
-    font-family:"AYNEHA","Space Grotesk",system-ui,sans-serif;
+    background:var(--night-950);
+    color:var(--ink);
+    font-family:"AYNEHA",system-ui,sans-serif;
     min-height:100vh;
     min-height:100dvh;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:center;
-    padding:calc(1.2rem + env(safe-area-inset-top)) 1.2rem calc(1.2rem + env(safe-area-inset-bottom));
-    direction:rtl;
+    padding:calc(0.8rem + env(safe-area-inset-top)) 0.8rem calc(0.8rem + env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color:transparent;
+  }
+  /* Dans l'application, laisse la place au bouton Confidentialité (coin haut-gauche). */
+  body.in-app .bar{padding-left:3.4rem;}
+
+  /* ---------- Moteur RTL : chaque glyphe est une case placée de droite à gauche ---------- */
+  .ay{display:inline-flex;flex-direction:row;direction:rtl;unicode-bidi:isolate;align-items:baseline;white-space:nowrap;}
+  .ay > span{display:inline-block;}
+  .ay .sep{padding:0 0.12em;}
+
+  /* ---------- Barre d'outils (icônes uniquement) ---------- */
+  .bar{
+    width:100%;max-width:980px;display:flex;flex-direction:row;gap:0.35rem;
+    justify-content:flex-start;align-items:center;margin:0 auto 0.6rem;min-height:2.6rem;
+  }
+  .ico{
+    width:2.6rem;height:2.6rem;border-radius:12px;border:1px solid var(--line);
+    background:var(--night-800);color:var(--ink-dim);display:inline-flex;
+    align-items:center;justify-content:center;cursor:pointer;flex:none;
+  }
+  .ico svg{width:1.35rem;height:1.35rem;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .ico:active,.ico.on{background:var(--orange-glow);color:var(--orange-soft);border-color:var(--orange);}
+  .ico.warn{color:var(--orange);border-color:var(--orange);}
+  .bar .grow{flex:1;}
+
+  /* ---------- Panneau principal ---------- */
+  .panel{
+    background:var(--night-800);border:1px solid var(--line);border-radius:18px;
+    padding:1.3rem 1.1rem 1.4rem;width:100%;max-width:980px;margin:0 auto;
+    box-shadow:0 14px 48px rgba(0,0,0,0.45);
+    display:flex;flex-direction:row;gap:1.6rem;align-items:stretch;
+  }
+  .info,.cal{flex:1 1 50%;min-width:0;}
+  .info{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .cal{border-right:1px solid var(--line);padding-right:1.4rem;}
+  @media (orientation:portrait), (max-width:700px){
+    .panel{flex-direction:column;gap:1rem;}
+    .cal{border-right:none;padding-right:0;border-top:1px solid var(--line);padding-top:1rem;}
   }
 
-  .hc-panel{
-    background:var(--indigo-800);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:1.6rem 1.4rem 1.8rem;
-    max-width:920px;
-    width:100%;
-    box-shadow:0 14px 48px rgba(0,0,0,0.5);
-  }
+  .lbl{font-size:1.25rem;color:var(--ink-dim);margin-bottom:0.25rem;}
+  .hr{height:1px;background:var(--line);width:100%;margin:0.9rem 0;}
 
-  .hc-widget{display:flex;flex-direction:row;gap:2rem;align-items:flex-start;}
-  .hc-right{flex:1 1 50%;width:50%;min-width:0;overflow:hidden;padding-left:0.8rem;box-sizing:border-box;}
-  .hc-left{
-    flex:1 1 50%;width:50%;min-width:0;overflow:hidden;
-    border-right:1px solid var(--line);padding-right:1.4rem;box-sizing:border-box;
-  }
-  @media (orientation:portrait){
-    .hc-widget{flex-direction:column;}
-    .hc-right,.hc-left{flex:none;width:100%;max-width:none;}
-    .hc-left{border-right:none;padding-right:0;border-bottom:1px solid var(--line);padding-bottom:1.2rem;margin-bottom:0.5rem;}
-  }
+  /* Horloge numérique */
+  .clock{font-size:clamp(2.5rem,11vw,3.6rem);color:var(--orange-soft);line-height:1.2;cursor:pointer;}
+  .clock .ay{gap:0.06em;}
+  /* Cadran à aiguilles */
+  .dial{width:min(62vw,15rem);height:min(62vw,15rem);cursor:pointer;display:none;}
+  .dial-mode .clock{display:none;}
+  .dial-mode .dial{display:block;}
+  .dial text{font-family:"AYNEHA";fill:var(--ink);}
 
-  .hc-label{
-    font-size:1.425rem;color:var(--sand-dim);letter-spacing:0.06em;margin-bottom:0.35rem;
-    direction:rtl;unicode-bidi:bidi-override;text-align:center;
-  }
-  .hc-right .hc-label{font-size:1.71rem;}
+  .row2{display:flex;flex-direction:row;width:100%;align-items:stretch;}
+  .row2 > div{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .row2 .vline{flex:none;width:1px;background:var(--line);}
+  .val{font-size:clamp(1.6rem,6.5vw,2.2rem);color:var(--ink);}
+  .moon{width:3.4rem;height:3.4rem;}
 
-  .hc-time{
-    font-size:clamp(2.4rem,8vw,3.2rem);letter-spacing:0.1em;color:var(--gold-bright);
-    line-height:1.15;margin-bottom:1.4rem;direction:ltr;unicode-bidi:isolate;text-align:center;
-  }
+  .lunar{font-size:clamp(1.9rem,8vw,2.6rem);color:var(--orange-soft);display:flex;flex-direction:row;gap:0.45em;justify-content:center;align-items:baseline;flex-wrap:wrap;}
+  .year{font-size:clamp(1.7rem,7vw,2.3rem);color:var(--ink);}
+  .greg{font-size:1.35rem;color:var(--ink-dim);margin-top:0.55rem;}
 
-  .hc-divider{height:1px;background:var(--line);margin:0 0 1.3rem;}
+  /* ---------- Calendrier ---------- */
+  .cal-head{display:flex;flex-direction:row;align-items:center;gap:0.3rem;margin-bottom:0.6rem;}
+  .cal-titles{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.2rem;}
+  .cal-greg{font-size:clamp(1.7rem,7vw,2.2rem);color:var(--ink);display:flex;flex-direction:row;gap:0.4em;align-items:baseline;justify-content:center;flex-wrap:wrap;}
+  .cal-lunar{font-size:1.25rem;color:var(--orange-soft);display:flex;flex-direction:row;gap:0.5em;flex-wrap:wrap;justify-content:center;}
+  .cal-lunar .dot{color:var(--ink-dim);}
+  .nav{width:2.8rem;height:2.8rem;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-dim);flex:none;}
+  .nav svg{width:1.6rem;height:1.6rem;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .nav:active{background:var(--orange-glow);color:var(--orange-soft);}
 
-  .hc-info-row{display:flex;flex-direction:column;gap:1rem;margin-bottom:0.8rem;text-align:center;}
-  .hc-info-top{display:flex;justify-content:space-between;gap:0.6rem;}
-  .hc-info-top .hc-block{flex:1;min-width:0;}
-  .hc-info-top .hc-info-divider{width:1px;align-self:stretch;background:var(--line);flex-shrink:0;}
-  .hc-block{flex:none;width:100%;}
-  .hc-year-block{margin-top:0.3rem;}
-  .hc-year-divider{height:1px;background:var(--line);margin-bottom:0.8rem;}
+  .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;direction:rtl;}
+  .wd{font-size:clamp(0.95rem,3.9vw,1.25rem);color:var(--ink-dim);text-align:center;padding:0.2rem 0 0.35rem;overflow:hidden;}
+  .day{
+    position:relative;border-radius:10px;padding:0.3rem 0 0.25rem;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:0.05rem;cursor:pointer;min-height:3.1rem;
+  }
+  .day.empty{visibility:hidden;}
+  .wd.off{color:var(--orange-soft);}
+  .day.off{background:rgba(255,106,19,0.06);}
+  .day .big{font-size:clamp(1.15rem,4.6vw,1.45rem);color:var(--ink);line-height:1.1;}
+  .day .small{font-size:clamp(0.75rem,3vw,0.9rem);color:var(--orange-soft);opacity:0.85;line-height:1;}
+  .day.mstart{box-shadow:inset 0 2px 0 var(--orange);}
+  .day.mstart .small{opacity:1;}
+  .day .fete{position:absolute;top:4px;left:5px;width:6px;height:6px;border-radius:50%;background:var(--orange);}
+  .day.today{background:var(--orange-glow);box-shadow:inset 0 0 0 1.5px var(--orange);}
+  .day.today .big{color:var(--orange-soft);}
+  .day.sel{background:rgba(243,236,224,0.08);}
 
-  .hc-value{
-    font-size:clamp(1.1rem,3.5vw,1.45rem);letter-spacing:0.04em;margin-top:0.25rem;
-    direction:rtl;unicode-bidi:bidi-override;color:var(--sand);
-  }
-  .hc-right .hc-value{font-size:clamp(2.2rem,7vw,2.9rem);}
-  .hc-value.accent{color:var(--gold-bright);}
-  #hcYearName{direction:ltr;unicode-bidi:isolate;}
+  .foot{font-family:system-ui,sans-serif;direction:ltr;font-size:0.7rem;letter-spacing:0.08em;color:var(--ink-dim);opacity:0.5;margin-top:0.8rem;}
 
-  .hc-cal-header{text-align:center;margin-bottom:0.7rem;}
-  .hc-cal-month{
-    font-size:clamp(2.025rem,6.3vw,2.55rem);color:var(--gold-bright);letter-spacing:0.05em;
-    direction:rtl;unicode-bidi:bidi-override;
+  /* ---------- Fiches (détail du jour, réglage) ---------- */
+  .sheet-bg{position:fixed;inset:0;background:rgba(4,8,16,0.6);display:none;align-items:flex-end;justify-content:center;z-index:20;}
+  .sheet-bg.open{display:flex;}
+  .sheet{
+    width:100%;max-width:560px;background:var(--night-800);border:1px solid var(--line);border-bottom:none;
+    border-radius:20px 20px 0 0;padding:1.2rem 1.2rem calc(1.4rem + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center;gap:0.55rem;text-align:center;
   }
-  .hc-cal-nav{
-    display:flex;justify-content:space-between;align-items:center;margin-bottom:0.7rem;
-    font-size:2.25rem;color:var(--sand-dim);user-select:none;
-  }
-  .hc-cal-nav span{cursor:pointer;padding:0.15rem 0.7rem;border-radius:8px;transition:background .15s,color .15s;}
-  .hc-cal-nav span:hover{background:rgba(198,145,47,0.18);color:var(--gold-bright);}
+  .sheet .big{font-size:clamp(2rem,9vw,2.8rem);color:var(--orange-soft);}
+  .sheet .mid{font-size:1.6rem;color:var(--ink);}
+  .sheet .small{font-size:1.25rem;color:var(--ink-dim);}
+  .sheet .moon{width:4rem;height:4rem;}
+  .adj{display:flex;flex-direction:row;align-items:center;gap:1rem;}
+  .adj .ico{width:3rem;height:3rem;}
+  .adj .num{font-size:1.9rem;min-width:3.5rem;}
 
-  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:0.35rem;text-align:center;}
-  .hc-weekday{
-    font-size:1.49rem;color:var(--sand-dim);padding:0.35rem 0;letter-spacing:0.02em;
-    direction:rtl;unicode-bidi:bidi-override;overflow:hidden;white-space:nowrap;
-  }
-  .hc-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;}
-  .hc-day{
-    aspect-ratio:5/3;display:flex;align-items:center;justify-content:center;font-size:1.425rem;
-    border-radius:8px;direction:rtl;unicode-bidi:bidi-override;color:var(--sand);min-height:0;
-  }
-  .hc-day.empty{visibility:hidden;}
-  .hc-day.today{background:rgba(198,145,47,0.22);color:var(--gold-bright);box-shadow:inset 0 0 0 1.5px var(--gold-bright);}
+  /* ---------- Mode veille de nuit ---------- */
+  .night{position:fixed;inset:0;background:#000;z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;cursor:pointer;}
+  .night.open{display:flex;}
+  .night .n-time{font-size:min(22vw,38vh);color:#c4541c;line-height:1;}
+  .night .n-date{font-size:min(6vw,8vh);color:#7a3a18;display:flex;flex-direction:row;gap:0.6em;align-items:center;}
+  .night .moon{width:1.6em;height:1.6em;opacity:0.6;}
 </style>
 </head>
 <body>
 
-<div class="hc-panel">
-  <div class="hc-widget">
+<div class="bar" id="bar">
+  <span class="ico" id="btnToday" role="button" aria-label="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+  <span class="ico" id="btnDial" role="button" aria-label="dial"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
+  <span class="ico" id="btnNight" role="button" aria-label="night"><svg viewBox="0 0 24 24"><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.8"/></svg></span>
+  <span class="ico" id="btnShare" role="button" aria-label="share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg></span>
+  <span class="ico" id="btnAdjust" role="button" aria-label="adjust"><svg viewBox="0 0 24 24"><path d="M15.5 4.5A8 8 0 1 0 15.5 19.5A6.5 6.5 0 0 1 15.5 4.5z"/><path d="M19 9v6M16 12h6"/></svg></span>
+  <span class="ico warn" id="btnBattery" role="button" aria-label="battery" style="display:none"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10.5v3M7 10l3 4M10 10l-3 4"/></svg></span>
+  <span class="grow"></span>
+</div>
 
-    <div class="hc-right">
-      <div class="hc-label" id="hcLabelGuuru"></div>
-      <div class="hc-time" id="hcClock"></div>
+<main class="panel" id="panel">
+  <section class="info" id="info">
+    <div class="lbl" id="lblGuuru"></div>
+    <div class="clock" id="clock"></div>
+    <svg class="dial" id="dial" viewBox="0 0 200 200" aria-hidden="true"></svg>
 
-      <div class="hc-divider"></div>
+    <div class="hr"></div>
 
-      <div class="hc-info-row">
-        <div class="hc-info-top">
-          <div class="hc-block">
-            <div class="hc-label" id="hcLabelHan"></div>
-            <div class="hc-value" id="hcDayName"></div>
-          </div>
-          <div class="hc-info-divider"></div>
-          <div class="hc-block">
-            <div class="hc-label" id="hcLabelHadu"></div>
-            <div class="hc-value" id="hcMonthName"></div>
-          </div>
-        </div>
-        <div class="hc-year-divider"></div>
-        <div class="hc-block hc-year-block">
-          <div class="hc-label" id="hcLabelAnnee"></div>
-          <div class="hc-value accent" id="hcYearName"></div>
-        </div>
+    <div class="row2">
+      <div>
+        <div class="lbl" id="lblHan"></div>
+        <div class="val" id="dayName"></div>
+      </div>
+      <div class="vline"></div>
+      <div>
+        <div class="lbl" id="lblHado"></div>
+        <svg class="moon" id="moonToday" viewBox="0 0 100 100" aria-hidden="true"></svg>
       </div>
     </div>
 
-    <div class="hc-left">
-      <div class="hc-cal-header">
-        <div class="hc-cal-month" id="hcCalMonth"></div>
-      </div>
-      <div class="hc-cal-nav">
-        <span id="hcPrevMonth">&#x2039;</span>
-        <span id="hcNextMonth">&#x203A;</span>
-      </div>
-      <div class="hc-weekdays" id="hcWeekdays"></div>
-      <div class="hc-days" id="hcDays"></div>
-    </div>
+    <div class="hr"></div>
 
+    <div class="lbl" id="lblHadu"></div>
+    <div class="lunar" id="lunarDate"></div>
+    <div class="lbl" id="lblJiiri" style="margin-top:0.7rem"></div>
+    <div class="year" id="lunarYear"></div>
+    <div class="greg" id="gregDate"></div>
+  </section>
+
+  <section class="cal" id="cal">
+    <div class="cal-head">
+      <span class="nav" id="prevMonth" role="button" aria-label="previous"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></span>
+      <div class="cal-titles">
+        <div class="cal-greg" id="calGreg"></div>
+        <div class="cal-lunar" id="calLunar"></div>
+      </div>
+      <span class="nav" id="nextMonth" role="button" aria-label="next"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span>
+    </div>
+    <div class="grid" id="weekdays"></div>
+    <div class="grid" id="days"></div>
+  </section>
+</main>
+
+<div class="foot">By MAIGUS</div>
+
+<!-- Détail d'un jour -->
+<div class="sheet-bg" id="daySheetBg">
+  <div class="sheet" id="daySheet">
+    <div class="mid" id="dsDayName"></div>
+    <div class="big" id="dsLunar"></div>
+    <div class="mid" id="dsYear"></div>
+    <svg class="moon" id="dsMoon" viewBox="0 0 100 100" aria-hidden="true"></svg>
+    <div class="small" id="dsGreg"></div>
   </div>
 </div>
 
+<!-- Réglage du début de mois lunaire (+/- jours) -->
+<div class="sheet-bg" id="adjSheetBg">
+  <div class="sheet">
+    <div class="lbl" id="adjLbl"></div>
+    <div class="big" id="adjPreview"></div>
+    <div class="adj">
+      <span class="ico" id="adjPlus" role="button" aria-label="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="num" id="adjNum"></span>
+      <span class="ico" id="adjMinus" role="button" aria-label="minus"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span>
+    </div>
+  </div>
+</div>
+
+<!-- Mode veille de nuit -->
+<div class="night" id="night">
+  <div class="n-time" id="nTime"></div>
+  <div class="n-date"><span id="nDay"></span><svg class="moon" id="nMoon" viewBox="0 0 100 100" aria-hidden="true"></svg><span id="nLunar"></span></div>
+</div>
+
 <script>
-  const HC_DIG = ['\uE000','\uE001','\uE002','\uE003','\uE004','\uE005','\uE006','\uE007','\uE008','\uE009'];
+(function(){
+"use strict";
 
-  const HC_LBL = {
-    guuru: '\uE01C\uE02F\uE013\uE024',
-    han:   '\uE01E\uE020\uE040',
-    hadu:  '\uE01E\uE026\uE00F\uE024'
+/* =====================================================================
+   RÉGLAGES DU CALENDRIER (à confirmer par Maïgus)
+   ===================================================================== */
+// Année songhay lunaire = année de l'Hégire + 2577 (calée sur les dates de
+// référence : 15 juillet 2025 = 19e jour du 1er mois 4024).
+const LUNAR_YEAR_OFFSET = 2577;
+// Année affichée sur la ligne grégorienne = année grégorienne + 2001
+// (convention de la version 1.1, en attente de confirmation).
+const GREG_YEAR_OFFSET = 2001;
+// Premier jour de la semaine : samedi (duhãtedji) ; dernier : vendredi (zĩbuza).
+// (0 = dimanche ... 6 = samedi)
+const WEEK_START = 6;
+// Jours chômés : samedi et vendredi.
+const OFF_DAYS = [6, 5];
+// Gao : sert au calcul du coucher du soleil (le jour lunaire change au coucher).
+const GAO_LAT = 16.2666, GAO_LON = -0.0447;
+
+/* =====================================================================
+   GLYPHES AYNEHA (Plan 16, police ayneha_pro.ttf)
+   g("8B 9C") -> U+10FF8B U+10FF9C
+   ===================================================================== */
+const g = s => s.split(' ').map(b => String.fromCodePoint(0x10FF00 + parseInt(b,16))).join('');
+const DIG = ['7C','7D','7E','7F','80','81','82','83','84','85'].map(g);
+
+const LBL = {
+  guuru: g('98 AB 8F A0'),   // guuru (heure)
+  han:   g('9A 9C BC'),      // han (jour)
+  hadu:  g('9A A2 8B A0'),   // hãdu (mois)
+  hado:  g('9A A2 8B 9F'),   // hãdo (lune)
+  jiiri: g('94 A6 8F 9E')    // jiiri (année)
+};
+
+// Jours de la semaine, index 0 = dimanche (ordre de JavaScript getDay()) :
+// fahãtedji, mahãtedji, bohãtedji, woyhãtedji, tohãtedji, zĩbuza, duhãtedji.
+const DAYS_FULL = [
+  '89 9C 9A A2 8C 9D 95 9E', '88 9C 9A A2 8C 9D 95 9E', '86 9F 9A A2 8C 9D 95 9E',
+  '8A 9F CC 9A A2 8C 9D 95 9E', '8C 9F 9A A2 8C 9D 95 9E', '91 A7 86 A0 91 9C',
+  '8B A0 9A A2 8C 9D 95 9E'
+].map(g);
+const DAYS_SHORT = ['89 9C 9A','88 9C 9A','86 9F 9A','8A 9F CC','8C 9F 9A','91 A7 86','8B A0 9A'].map(g);
+
+// Les 12 mois songhay (lunaires), index 0 = 1er mois du jiiri :
+// dadaw-beeri, dadaw-kayna, gaani, gaani-bãda, bĩkuna, bĩbina, woyzena,
+// cekɔnna, meehaw, meefeeri, hunãzam, cibsi.
+const LUNAR_MONTHS = [
+  '8B 9C 8B 9C B6 86 A3 8F 9E', '8B 9C 8B 9C B6 99 9C CC 8D 9C', '98 A1 8D 9E',
+  '98 A1 8D 9E 86 A2 8B 9C', '86 A7 99 A0 8D 9C', '86 A7 86 9E 8D 9C',
+  '8A 9F CC 91 9D 8D 9C', '93 9D 99 AA BB 9C', '88 A3 9A 9C B6',
+  '88 A3 89 A3 8F 9E', '9A A0 8D A2 91 9C B2', '93 9E AE 90 9E'
+].map(g);
+
+// Jours fériés (liste PROVISOIRE à valider par Maïgus ; noms songhay à fournir).
+// Grégoriens : [mois, jour]. Lunaires : [mois lunaire, jour lunaire].
+const FETES_GREG  = [[1,1],[1,20],[3,26],[5,1],[5,25],[9,22],[12,25]];
+const FETES_LUNAR = [[3,12],[10,1],[12,10]];
+
+/* =====================================================================
+   MOTEUR D'AFFICHAGE RTL
+   Le texte reste dans l'ordre logique ; chaque glyphe devient une case,
+   et le navigateur place la première case à droite. Aucune inversion.
+   ===================================================================== */
+function ay(text){
+  const box = document.createElement('span');
+  box.className = 'ay';
+  for (const ch of text) {
+    const s = document.createElement('span');
+    if (ch === ':' || ch === '.' || ch === ' ') { s.className = 'sep'; s.textContent = ch === ' ' ? ' ' : ch; }
+    else s.textContent = ch;
+    box.appendChild(s);
+  }
+  return box;
+}
+function put(el, text){ el.replaceChildren(ay(text)); }
+const num = n => String(n).split('').map(c => DIG[+c]).join('');
+const num2 = n => num(String(n).padStart(2,'0'));
+
+/* =====================================================================
+   CALENDRIER LUNAIRE (arithmétique, cycle de 30 ans)
+   Vérifié sur les 5 dates de référence fournies par Maïgus.
+   ===================================================================== */
+const ISL_EPOCH = 1948439.5;
+function gregToJd(y,m,d){ return Date.UTC(y,m-1,d)/86400000 + 2440587.5; }
+function islToJd(y,m,d){
+  return d + Math.ceil(29.5*(m-1)) + (y-1)*354 + Math.floor((3+11*y)/30) + ISL_EPOCH - 1;
+}
+function jdToIsl(jd){
+  jd = Math.floor(jd) + 0.5;
+  const y = Math.floor((30*(jd - ISL_EPOCH) + 10646) / 10631);
+  const m = Math.min(12, Math.ceil((jd - (29 + islToJd(y,1,1))) / 29.5) + 1);
+  const d = jd - islToJd(y,m,1) + 1;
+  return {y, m, d};
+}
+// Date lunaire du jour (de jour) correspondant à une date grégorienne.
+function lunarOf(y,m,d){
+  const r = jdToIsl(gregToJd(y,m,d) - adjust());
+  return {d:r.d, m:r.m, y:r.y + LUNAR_YEAR_OFFSET};
+}
+
+/* Coucher du soleil à Gao (équation du lever/coucher, précision ~1 min). */
+function sunsetMs(y,m,d){
+  const rad = Math.PI/180;
+  // n = nombre de jours depuis le 1er janvier 2000 à midi (jour local à Gao).
+  const n = Math.round(gregToJd(y,m,d) + 0.5 - 2451545.0);
+  const Js = n - GAO_LON/360;
+  const M = (357.5291 + 0.98560028*Js) % 360;
+  const C = 1.9148*Math.sin(M*rad) + 0.02*Math.sin(2*M*rad) + 0.0003*Math.sin(3*M*rad);
+  const L = (M + C + 180 + 102.9372) % 360;
+  const Jt = 2451545.0 + Js + 0.0053*Math.sin(M*rad) - 0.0069*Math.sin(2*L*rad);
+  const dec = Math.asin(Math.sin(L*rad)*Math.sin(23.4397*rad));
+  const cw = (Math.sin(-0.833*rad) - Math.sin(GAO_LAT*rad)*Math.sin(dec)) / (Math.cos(GAO_LAT*rad)*Math.cos(dec));
+  const w = Math.acos(Math.max(-1, Math.min(1, cw))) / rad;
+  return (Jt + w/360 - 2440587.5) * 86400000;
+}
+// Date lunaire « maintenant » : après le coucher du soleil, c'est déjà le jour suivant.
+function lunarNow(now){
+  const y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
+  if (now.getTime() >= sunsetMs(y,m,d)) {
+    const t = new Date(y, m-1, d+1);
+    return lunarOf(t.getFullYear(), t.getMonth()+1, t.getDate());
+  }
+  return lunarOf(y,m,d);
+}
+
+/* Âge de la lune (jours depuis la nouvelle lune) pour le dessin de hãdo. */
+function moonAge(date){
+  const jd = date.getTime()/86400000 + 2440587.5;
+  const syn = 29.530588853;
+  let a = (jd - 2451550.26) % syn;
+  if (a < 0) a += syn;
+  return a;
+}
+function drawMoon(svg, date){
+  const p = moonAge(date) / 29.530588853;     // 0 = nouvelle lune, 0,5 = pleine lune
+  const r = 44, cx = 50, cy = 50;
+  const k = Math.cos(2*Math.PI*p);
+  const rx = Math.abs(k) * r;
+  const waxing = p < 0.5;
+  const outer = waxing ? 1 : 0;
+  const inner = waxing ? (k > 0 ? 0 : 1) : (k > 0 ? 1 : 0);
+  const lit = `M ${cx} ${cy-r} A ${r} ${r} 0 0 ${outer} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${inner} ${cx} ${cy-r} Z`;
+  svg.innerHTML =
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--moon-dark)" stroke="rgba(243,236,224,0.25)" stroke-width="1.5"/>` +
+    `<path d="${lit}" fill="var(--moon-lit)"/>`;
+}
+
+/* Lundi de Pâques (jour férié au Mali), calcul de Meeus. */
+function easterMonday(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),
+        g2=Math.floor((b-f+1)/3),h=(19*a+b-d-g2+15)%30,i=Math.floor(c/4),k=c%4,
+        l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+        mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  const t = new Date(y, mo-1, da+1);
+  return [t.getMonth()+1, t.getDate()];
+}
+function isFete(y,m,d,lun){
+  if (FETES_GREG.some(f => f[0]===m && f[1]===d)) return true;
+  const em = easterMonday(y);
+  if (em[0]===m && em[1]===d) return true;
+  return FETES_LUNAR.some(f => f[0]===lun.m && f[1]===lun.d);
+}
+
+/* =====================================================================
+   PONT AVEC L'APPLICATION ANDROID (absent sur le site)
+   ===================================================================== */
+const App = window.AynehaApp || null;
+if (App) document.body.classList.add('in-app');
+
+let adjustValue = 0;
+try { adjustValue = parseInt(localStorage.getItem('lunarAdjust') || '0', 10) || 0; } catch(e) {}
+if (App && App.getLunarAdjust) { try { adjustValue = App.getLunarAdjust(); } catch(e) {} }
+function adjust(){ return adjustValue; }
+function setAdjust(v){
+  adjustValue = Math.max(-2, Math.min(2, v));
+  try { localStorage.setItem('lunarAdjust', String(adjustValue)); } catch(e) {}
+  if (App && App.setLunarAdjust) { try { App.setLunarAdjust(adjustValue); } catch(e) {} }
+}
+
+/* =====================================================================
+   AFFICHAGE
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+put($('lblGuuru'), LBL.guuru);
+put($('lblHan'), LBL.han);
+put($('lblHado'), LBL.hado);
+put($('lblHadu'), LBL.hadu);
+put($('lblJiiri'), LBL.jiiri);
+put($('adjLbl'), LBL.hadu);
+
+function timeText(now, withSeconds){
+  let t = num2(now.getHours()) + ':' + num2(now.getMinutes());
+  if (withSeconds) t += ':' + num2(now.getSeconds());
+  return t;
+}
+function lunarText(l){ return num(l.d) + ' ' + LUNAR_MONTHS[l.m-1]; }
+function gregText(y,m,d){ return num(d) + '.' + num(m) + '.' + num(y + GREG_YEAR_OFFSET); }
+
+/* --- Cadran à aiguilles --- */
+const dial = $('dial');
+(function buildDial(){
+  let s = '<circle cx="100" cy="100" r="94" fill="var(--night-700)" stroke="var(--line)" stroke-width="2"/>';
+  for (let i = 0; i < 60; i++) {
+    const a = i * 6 * Math.PI/180, r1 = i % 5 ? 86 : 82;
+    s += `<line x1="${100+r1*Math.sin(a)}" y1="${100-r1*Math.cos(a)}" x2="${100+90*Math.sin(a)}" y2="${100-90*Math.cos(a)}" stroke="${i%5?'rgba(243,236,224,0.25)':'var(--ink-dim)'}" stroke-width="${i%5?1:2}"/>`;
+  }
+  dial.innerHTML = s + '<g id="dialNums"></g><g id="dialHands"></g>';
+  const nums = dial.querySelector('#dialNums');
+  for (let h = 1; h <= 12; h++) {
+    const a = h * 30 * Math.PI/180;
+    // Les nombres à 2 chiffres sont posés glyphe par glyphe, de droite à gauche.
+    const glyphs = [...num(h)];
+    const x0 = 100 + 66*Math.sin(a), y0 = 100 - 66*Math.cos(a) + 6;
+    const w = 11;
+    glyphs.forEach((ch, i) => {
+      const x = x0 + (glyphs.length - 1) * w/2 - i * w;
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', x); t.setAttribute('y', y0);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','17');
+      t.textContent = ch;
+      nums.appendChild(t);
+    });
+  }
+})();
+function drawHands(now){
+  const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
+  const hand = (deg, len, w, col) => {
+    const a = deg*Math.PI/180;
+    return `<line x1="100" y1="100" x2="${100+len*Math.sin(a)}" y2="${100-len*Math.cos(a)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
   };
+  dial.querySelector('#dialHands').innerHTML =
+    hand((h + m/60)*30, 44, 6, 'var(--ink)') +
+    hand((m + s/60)*6, 64, 4, 'var(--ink)') +
+    hand(s*6, 72, 1.6, 'var(--orange)') +
+    '<circle cx="100" cy="100" r="5" fill="var(--orange)"/>';
+}
 
-  const HC_DAYS_FULL = [
-    '\uE00D\uE020\uE01E\uE026\uE010\uE021\uE019\uE022',
-    '\uE00C\uE020\uE01E\uE026\uE010\uE021\uE019\uE022',
-    '\uE00A\uE023\uE01E\uE026\uE010\uE021\uE019\uE022',
-    '\uE00E\uE023\uE050\uE01E\uE026\uE010\uE021\uE019\uE022',
-    '\uE010\uE023\uE01E\uE026\uE010\uE021\uE019\uE022',
-    '\uE015\uE02B\uE00A\uE024\uE015\uE020',
-    '\uE00F\uE024\uE01E\uE026\uE010\uE021\uE019\uE022'
-  ];
+/* --- Infos du jour --- */
+let lastDayKey = '', lastLunarKey = '';
+function tick(){
+  const now = new Date();
+  put($('clock'), timeText(now, true));
+  if (document.body.classList.contains('dial-mode')) drawHands(now);
 
-  const HC_DAYS_SHORT = [
-    '\uE00D\uE020\uE01E',
-    '\uE00C\uE020\uE01E',
-    '\uE00A\uE023\uE01E',
-    '\uE00E\uE023\uE050',
-    '\uE010\uE023\uE01E',
-    '\uE015\uE02B\uE00A',
-    '\uE00F\uE024\uE01E'
-  ];
-
-  const HC_MONTHS = [
-    '\uE00F\uE020\uE00F\uE020\uE03A\uE00A\uE027\uE013\uE022',
-    '\uE00F\uE020\uE00F\uE020\uE03A\uE01D\uE020\uE050\uE011\uE020',
-    '\uE01C\uE025\uE011\uE022',
-    '\uE01C\uE025\uE011\uE022\uE00A\uE026\uE00F\uE020',
-    '\uE00A\uE02B\uE01D\uE024\uE011\uE020',
-    '\uE00A\uE02B\uE00A\uE022\uE011\uE020',
-    '\uE00E\uE023\uE050\uE015\uE021\uE011\uE020',
-    '\uE017\uE021\uE01D\uE02E\uE03F\uE020',
-    '\uE00C\uE027\uE01E\uE020\uE03A',
-    '\uE00C\uE027\uE00D\uE027\uE013\uE022',
-    '\uE01E\uE024\uE011\uE026\uE015\uE020\uE036',
-    '\uE017\uE022\uE032\uE014\uE022'
-  ];
-
-  function hcToAy(n) {
-    return String(n).split('').map(c => HC_DIG[+c]).join('');
+  const dayKey = now.toDateString();
+  const lun = lunarNow(now);
+  const lunarKey = lun.y + '-' + lun.m + '-' + lun.d + '/' + adjust();
+  if (dayKey !== lastDayKey || lunarKey !== lastLunarKey) {
+    // Changement de jour (minuit) ou de jour lunaire (coucher du soleil).
+    const dayChanged = dayKey !== lastDayKey;
+    lastDayKey = dayKey; lastLunarKey = lunarKey;
+    renderToday(now, lun);
+    if (dayChanged) setViewToToday();
+    renderCalendar();
   }
-  function hcToAy2Rev(n) {
-    const s = String(n).padStart(2,'0');
-    return hcToAy(s[1] + s[0]);
+  if ($('night').classList.contains('open')) renderNight(now, lun);
+}
+function renderToday(now, lun){
+  put($('dayName'), DAYS_FULL[now.getDay()]);
+  drawMoon($('moonToday'), now);
+  $('lunarDate').replaceChildren(ay(num(lun.d)), ay(LUNAR_MONTHS[lun.m-1]));
+  put($('lunarYear'), num(lun.y));
+  put($('gregDate'), gregText(now.getFullYear(), now.getMonth()+1, now.getDate()));
+}
+
+/* --- Calendrier (mois lunaire songhay ; jours grégoriens en petit) --- */
+// viewY / viewM = année et mois lunaires affichés (année de calcul, sans +2577).
+let viewY, viewM, selectedKey = '';
+function jdToGreg(jd){
+  const d = new Date(Math.round((jd - 2440587.5) * 86400000));
+  return {y:d.getUTCFullYear(), m:d.getUTCMonth()+1, d:d.getUTCDate()};
+}
+function lunarMonthSpan(y, m){
+  const start = islToJd(y, m, 1) + adjust();
+  const next = (m === 12 ? islToJd(y+1, 1, 1) : islToJd(y, m+1, 1)) + adjust();
+  return {start, len: Math.round(next - start)};
+}
+function setViewToToday(){
+  const n = new Date();
+  const r = jdToIsl(gregToJd(n.getFullYear(), n.getMonth()+1, n.getDate()) - adjust());
+  viewY = r.y; viewM = r.m;
+}
+function renderCalendar(){
+  const now = new Date();
+  const span = lunarMonthSpan(viewY, viewM);
+
+  // Titre : le mois lunaire songhay et son jiiri.
+  $('calGreg').replaceChildren(ay(LUNAR_MONTHS[viewM-1]), ay(' ' + num(viewY + LUNAR_YEAR_OFFSET)));
+
+  // Sous-titre : les mois grégoriens qui chevauchent ce mois lunaire.
+  const g0 = jdToGreg(span.start), g1 = jdToGreg(span.start + span.len - 1);
+  const cl = $('calLunar');
+  cl.replaceChildren();
+  let gy = g0.y, gm = g0.m;
+  while (true) {
+    if (cl.childNodes.length) { const d = document.createElement('span'); d.className = 'dot'; d.textContent = '|'; cl.appendChild(d); }
+    cl.appendChild(ay(num(gm) + '.' + num(gy + GREG_YEAR_OFFSET)));
+    if (gy === g1.y && gm === g1.m) break;
+    gm++; if (gm > 12) { gm = 1; gy++; }
+    if (cl.childNodes.length > 6) break;
   }
 
-  let hcViewYear, hcViewMonth;
-
-  function hcUpdateClock() {
-    const now = new Date();
-    document.getElementById('hcClock').textContent =
-      hcToAy2Rev(now.getSeconds()) + ':' +
-      hcToAy2Rev(now.getMinutes()) + ':' +
-      hcToAy2Rev(now.getHours());
-
-    document.getElementById('hcDayName').textContent  = HC_DAYS_FULL[now.getDay()];
-    document.getElementById('hcMonthName').textContent = HC_MONTHS[now.getMonth()];
-
-    const songhayYear = now.getFullYear() + 2001;
-    const yearRev = String(songhayYear).split('').reverse().join('');
-    document.getElementById('hcYearName').textContent = hcToAy(yearRev);
+  const wd = $('weekdays');
+  wd.replaceChildren();
+  for (let i = 0; i < 7; i++) {
+    const e = document.createElement('div');
+    e.className = 'wd';
+    if (OFF_DAYS.includes((WEEK_START + i) % 7)) e.classList.add('off');
+    e.appendChild(ay(DAYS_SHORT[(WEEK_START + i) % 7]));
+    wd.appendChild(e);
   }
 
-  function hcRenderCalendar() {
-    const now = new Date();
-    document.getElementById('hcCalMonth').textContent = HC_MONTHS[hcViewMonth];
+  const days = $('days');
+  days.replaceChildren();
+  const g0date = new Date(g0.y, g0.m-1, g0.d);
+  const lead = (g0date.getDay() - WEEK_START + 7) % 7;
+  for (let i = 0; i < lead; i++) { const e = document.createElement('div'); e.className = 'day empty'; days.appendChild(e); }
+  for (let i = 0; i < span.len; i++) {
+    const g = jdToGreg(span.start + i);
+    const lun = {d: i+1, m: viewM, y: viewY + LUNAR_YEAR_OFFSET};
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    if (OFF_DAYS.includes(new Date(g.y, g.m-1, g.d).getDay())) cell.classList.add('off');
+    if (g.d === 1) cell.classList.add('mstart');           // 1er jour d'un mois grégorien
+    if (g.y === now.getFullYear() && g.m === now.getMonth()+1 && g.d === now.getDate()) cell.classList.add('today');
+    const key = g.y + '-' + g.m + '-' + g.d;
+    if (key === selectedKey) cell.classList.add('sel');
+    const big = document.createElement('span'); big.className = 'big'; big.appendChild(ay(num(lun.d)));
+    const small = document.createElement('span'); small.className = 'small'; small.appendChild(ay(num(g.d)));
+    cell.append(big, small);
+    if (isFete(g.y, g.m, g.d, lun)) { const f = document.createElement('span'); f.className = 'fete'; cell.appendChild(f); }
+    cell.addEventListener('click', () => openDay(g.y, g.m-1, g.d));
+    days.appendChild(cell);
+  }
+}
+function moveMonth(step){
+  viewM += step;
+  if (viewM < 1) { viewM = 12; viewY--; }
+  if (viewM > 12) { viewM = 1; viewY++; }
+  renderCalendar();
+}
+$('prevMonth').addEventListener('click', () => moveMonth(-1));
+$('nextMonth').addEventListener('click', () => moveMonth(1));
+$('btnToday').addEventListener('click', () => { setViewToToday(); selectedKey = ''; renderCalendar(); });
+// Glisser le doigt : en RTL, le mois suivant arrive par la gauche.
+(function swipe(){
+  let x0 = null, y0 = null;
+  const c = $('cal');
+  c.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive:true});
+  c.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) moveMonth(dx > 0 ? 1 : -1);
+    x0 = null;
+  }, {passive:true});
+})();
 
-    const wd = document.getElementById('hcWeekdays');
-    wd.innerHTML = '';
-    HC_DAYS_SHORT.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'hc-weekday';
-      el.textContent = d;
-      wd.appendChild(el);
-    });
+/* --- Détail d'un jour --- */
+function openDay(y, m, d){
+  selectedKey = y + '-' + (m+1) + '-' + d;
+  renderCalendar();
+  const date = new Date(y, m, d, 12);
+  const lun = lunarOf(y, m+1, d);
+  put($('dsDayName'), DAYS_FULL[date.getDay()]);
+  put($('dsLunar'), lunarText(lun));
+  put($('dsYear'), num(lun.y));
+  drawMoon($('dsMoon'), date);
+  put($('dsGreg'), gregText(y, m+1, d));
+  $('daySheetBg').classList.add('open');
+}
+$('daySheetBg').addEventListener('click', () => $('daySheetBg').classList.remove('open'));
 
-    const first = new Date(hcViewYear, hcViewMonth, 1);
-    const last  = new Date(hcViewYear, hcViewMonth + 1, 0);
-    const startDow = first.getDay();
-    const total = last.getDate();
+/* --- Réglage du début de mois (+/- 2 jours) --- */
+function renderAdj(){
+  const n = new Date();
+  put($('adjPreview'), lunarText(lunarNow(n)));
+  put($('adjNum'), (adjust() > 0 ? '+' : adjust() < 0 ? '-' : '') + num(Math.abs(adjust())));
+}
+$('btnAdjust').addEventListener('click', () => { renderAdj(); $('adjSheetBg').classList.add('open'); });
+$('adjSheetBg').addEventListener('click', e => { if (e.target === $('adjSheetBg')) $('adjSheetBg').classList.remove('open'); });
+$('adjPlus').addEventListener('click', () => { setAdjust(adjust() + 1); setViewToToday(); renderAdj(); tick(); renderCalendar(); });
+$('adjMinus').addEventListener('click', () => { setAdjust(adjust() - 1); setViewToToday(); renderAdj(); tick(); renderCalendar(); });
 
-    const daysEl = document.getElementById('hcDays');
-    daysEl.innerHTML = '';
+/* --- Cadran à aiguilles (choix mémorisé) --- */
+function setDial(on){
+  document.body.classList.toggle('dial-mode', on);
+  $('btnDial').classList.toggle('on', on);
+  try { localStorage.setItem('dialMode', on ? '1' : '0'); } catch(e) {}
+  if (on) drawHands(new Date());
+}
+$('btnDial').addEventListener('click', () => setDial(!document.body.classList.contains('dial-mode')));
+$('clock').addEventListener('click', () => setDial(true));
+dial.addEventListener('click', () => setDial(false));
+try { if (localStorage.getItem('dialMode') === '1') setDial(true); } catch(e) {}
 
-    for (let i = 0; i < startDow; i++) {
-      const e = document.createElement('div');
-      e.className = 'hc-day empty';
-      daysEl.appendChild(e);
+/* --- Mode veille de nuit --- */
+let wakeLock = null;
+function renderNight(now, lun){
+  put($('nTime'), timeText(now, false));
+  put($('nDay'), DAYS_FULL[now.getDay()]);
+  put($('nLunar'), lunarText(lun));
+  drawMoon($('nMoon'), now);
+}
+async function setNight(on){
+  $('night').classList.toggle('open', on);
+  if (on) renderNight(new Date(), lunarNow(new Date()));
+  if (App && App.setNightMode) { try { App.setNightMode(on); } catch(e) {} return; }
+  try {
+    if (on) {
+      if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request('screen');
+      if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+      // Le mode veille suit la position du téléphone (portrait ou paysage).
+      if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch(e) {} }
+    } else {
+      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
+      if (document.fullscreenElement) await document.exitFullscreen();
     }
-
-    for (let d = 1; d <= total; d++) {
-      const cell = document.createElement('div');
-      cell.className = 'hc-day';
-      cell.textContent = hcToAy(d);
-      if (hcViewYear === now.getFullYear() &&
-          hcViewMonth === now.getMonth() &&
-          d === now.getDate()) {
-        cell.classList.add('today');
-      }
-      daysEl.appendChild(cell);
-    }
+  } catch(e) {}
+}
+$('btnNight').addEventListener('click', () => setNight(true));
+$('night').addEventListener('click', () => setNight(false));
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && $('night').classList.contains('open') && !App && navigator.wakeLock) {
+    try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
   }
+});
 
-  document.getElementById('hcPrevMonth').addEventListener('click', () => {
-    hcViewMonth--;
-    if (hcViewMonth < 0) { hcViewMonth = 11; hcViewYear--; }
-    hcRenderCalendar();
+/* --- Partager la date du jour en image --- */
+async function makeShareImage(){
+  await document.fonts.load('40px "AYNEHA"', DIG[0]);
+  const W = 1080, H = 1080;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const grd = x.createLinearGradient(0, 0, 0, H);
+  grd.addColorStop(0, '#13213a'); grd.addColorStop(1, '#08101e');
+  x.fillStyle = grd; x.fillRect(0, 0, W, H);
+  x.strokeStyle = '#ff6a13'; x.lineWidth = 10; x.strokeRect(40, 40, W-80, H-80);
+
+  // Écrit un texte AYNEHA centré, glyphe par glyphe de droite à gauche.
+  const rtl = (text, size, color, yy) => {
+    x.font = size + 'px "AYNEHA"'; x.fillStyle = color; x.textBaseline = 'alphabetic';
+    const gl = [...text].map(ch => ({ch, w: x.measureText(ch).width + size*0.04}));
+    const tw = gl.reduce((s,a) => s + a.w, 0);
+    let px = W/2 + tw/2;
+    for (const a of gl) { px -= a.w; x.fillText(a.ch, px, yy); }
+  };
+  const now = new Date(), lun = lunarNow(now);
+  rtl(timeText(now, false), 190, '#ff8a3d', 330);
+  rtl(DAYS_FULL[now.getDay()], 96, '#f3ece0', 500);
+  rtl(lunarText(lun), 110, '#ff8a3d', 650);
+  rtl(num(lun.y), 96, '#f3ece0', 790);
+  rtl(gregText(now.getFullYear(), now.getMonth()+1, now.getDate()), 60, '#b9c0cf', 900);
+
+  // Petite lune en haut à gauche.
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 100 100'); svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  drawMoon(svg, now);
+  const src = svg.outerHTML.replace('var(--moon-dark)','#22324f').replace('var(--moon-lit)','#f6e7c8');
+  await new Promise(res => {
+    const img = new Image();
+    img.onload = () => { x.drawImage(img, 90, 90, 130, 130); res(); };
+    img.onerror = res;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
   });
-  document.getElementById('hcNextMonth').addEventListener('click', () => {
-    hcViewMonth++;
-    if (hcViewMonth > 11) { hcViewMonth = 0; hcViewYear++; }
-    hcRenderCalendar();
-  });
+  // Filigrane.
+  x.font = '600 34px system-ui, sans-serif'; x.fillStyle = 'rgba(243,236,224,0.55)'; x.textAlign = 'center';
+  x.fillText('AYNEHA  -  ayneha.org', W/2, H - 80);
+  return c;
+}
+$('btnShare').addEventListener('click', async () => {
+  const c = await makeShareImage();
+  const dataUrl = c.toDataURL('image/png');
+  if (App && App.shareImage) { App.shareImage(dataUrl.split(',')[1]); return; }
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], 'ayneha-horloge.png', {type:'image/png'});
+    if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file]}); return; }
+  } catch(e) {}
+  const a = document.createElement('a'); a.href = dataUrl; a.download = 'ayneha-horloge.png'; a.click();
+});
 
-  document.getElementById('hcLabelGuuru').textContent = HC_LBL.guuru;
-  document.getElementById('hcLabelHan').textContent   = HC_LBL.han;
-  document.getElementById('hcLabelHadu').textContent  = HC_LBL.hadu;
-  document.getElementById('hcLabelAnnee').textContent = '';
-
-  const hcNow = new Date();
-  hcViewYear  = hcNow.getFullYear();
-  hcViewMonth = hcNow.getMonth();
-
-  hcUpdateClock();
-  hcRenderCalendar();
-  setInterval(hcUpdateClock, 1000);
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js');
-    });
+/* --- Batterie (application uniquement) --- */
+function checkBattery(){
+  if (App && App.isBatteryRestricted) {
+    try { $('btnBattery').style.display = App.isBatteryRestricted() ? '' : 'none'; } catch(e) {}
   }
+}
+$('btnBattery').addEventListener('click', () => { if (App && App.openBatterySettings) App.openBatterySettings(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { checkBattery(); tick(); } });
+window.aynehaRefresh = () => { checkBattery(); tick(); };
+
+/* --- Démarrage --- */
+document.fonts.load('20px "AYNEHA"', DIG[0]).finally(() => { tick(); checkBattery(); });
+tick();
+setInterval(tick, 1000);
+
+if ('serviceWorker' in navigator && location.protocol === 'https:' && !App) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
+}
+
+// Accès pour les tests automatiques.
+window.__ayneha = {lunarOf, lunarNow, sunsetMs, jdToIsl, gregToJd};
+})();
 </script>
 </body>
 </html>
