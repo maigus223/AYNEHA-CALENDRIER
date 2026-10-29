@@ -142,6 +142,26 @@
   .fete{background:var(--orange);}
   .fete-mali{background:#f3ece0;}
   .fete-rel{background:#5fd0a0;}
+  .ram-box{display:flex;flex-direction:column;align-items:center;gap:.35rem;margin-top:.8rem;}
+  .ram-box:empty,  .prochaines:empty{display:none;}
+  .ram-l,  .proch-l{display:flex;align-items:center;justify-content:center;gap:.6rem;font:600 .85rem/1.3 system-ui,sans-serif;color:var(--ink-dim);}
+  .ram-l .ay{font-size:1.35rem;color:var(--orange-soft);font-family:"AYNEHA",system-ui,sans-serif;font-weight:400;}
+  .prochaines{display:flex;flex-direction:column;align-items:center;gap:.3rem;margin-top:.9rem;padding-top:.7rem;border-top:1px solid rgba(243,236,224,0.12);width:100%;}
+  .proch-l .ay{font-size:1.15rem;color:var(--ink);font-family:"AYNEHA",system-ui,sans-serif;font-weight:400;}
+  .proch-l i{width:8px;height:8px;}
+  .ram-ico svg,  .conv-tab svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}
+  .ram-ico{color:var(--orange-soft);display:inline-flex;}
+  .conv-tab{display:inline-flex;align-items:center;gap:.15rem;}
+  .conv-tabs{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+  .conv-tab{font:600 .85rem/1 system-ui,sans-serif;padding:.55rem .8rem;border-radius:999px;border:1px solid rgba(243,236,224,0.25);color:var(--ink-dim);cursor:pointer;}
+  .conv-tab.on{background:var(--orange);border-color:var(--orange);color:#fff;}
+  .conv-g input{font:600 1.1rem system-ui,sans-serif;padding:.5rem .7rem;border-radius:10px;border:1px solid rgba(243,236,224,0.3);background:rgba(255,255,255,0.06);color:var(--ink);color-scheme:dark;}
+  .conv-l{display:flex;flex-direction:column;gap:.5rem;align-items:center;}
+  .conv-pas{display:flex;align-items:center;gap:.4rem;}
+  .conv-pas .ico{direction:ltr;unicode-bidi:isolate;font:700 .85rem system-ui,sans-serif;min-width:2.4rem;width:auto;padding:0 .5rem;}
+  .conv-val{min-width:8rem;text-align:center;font-size:1.5rem;color:var(--orange-soft);display:flex;justify-content:center;}
+  .conv-res{display:flex;flex-direction:column;align-items:center;gap:.3rem;font-size:1.5rem;color:var(--ink);}
+  .conv-res .conv-big{font-size:2rem;color:var(--orange-soft);}
   .fete-ram{display:inline-block;width:6px;height:6px;border-radius:50%;background:#8b5cf6;}
   .fete-ram.rompu{background:#d8c8ff;}
   .fete-ligne{width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;font:600 .9rem/1.3 system-ui,sans-serif;color:var(--ink-dim);}
@@ -189,6 +209,7 @@
   <span class="ico" id="btnNight" role="button" aria-label="night"><svg viewBox="0 0 24 24"><path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.8"/></svg></span>
   <span class="ico" id="btnShare" role="button" aria-label="share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg></span>
   <span class="ico" id="btnPlace" role="button" aria-label="position"><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></span>
+  <span class="ico" id="btnConv" role="button" aria-label="Convertir une date" title="Convertir une date"><svg viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg></span>
   <span class="ico" id="btnAdjust" role="button" aria-label="adjust"><svg viewBox="0 0 24 24"><path d="M15.5 4.5A8 8 0 1 0 15.5 19.5A6.5 6.5 0 0 1 15.5 4.5z"/><path d="M19 9v6M16 12h6"/></svg></span>
   <span class="ico warn" id="btnBattery" role="button" aria-label="battery" style="display:none"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10.5v3M7 10l3 4M10 10l-3 4"/></svg></span>
   <span class="grow"></span>
@@ -222,6 +243,7 @@
     <div class="year" id="lunarYear"></div>
     <div class="greg" id="gregDate"></div>
     <div class="ordre" id="ordreMain"></div>
+    <div class="ram-box" id="ramBox"></div>
   </section>
 
   <section class="cal" id="cal">
@@ -250,6 +272,20 @@
     <div class="small" id="dsGreg"></div>
     <div class="ordre" id="ordreSheet"></div>
     <div class="fetes" id="dsFetes"></div>
+  </div>
+</div>
+
+<!-- Convertisseur de dates -->
+<div class="sheet-bg" id="convSheetBg">
+  <div class="sheet conv">
+    <div class="conv-tabs"><span class="conv-tab on" id="convTabG" role="button"></span><span class="conv-tab" id="convTabL" role="button"></span></div>
+    <div class="conv-g" id="convG"><input type="date" id="convDate" min="1900-01-01" max="2200-12-31"></div>
+    <div class="conv-l" id="convL" style="display:none">
+      <div class="conv-pas" data-champ="d"><span class="ico" data-pas="-1" role="button">-</span><span class="conv-val" id="convLD"></span><span class="ico" data-pas="1" role="button">+</span></div>
+      <div class="conv-pas" data-champ="m"><span class="ico" data-pas="-1" role="button">-</span><span class="conv-val" id="convLM"></span><span class="ico" data-pas="1" role="button">+</span></div>
+      <div class="conv-pas" data-champ="y"><span class="ico" data-pas="-10" role="button">-10</span><span class="ico" data-pas="-1" role="button">-</span><span class="conv-val" id="convLY"></span><span class="ico" data-pas="1" role="button">+</span><span class="ico" data-pas="10" role="button">+10</span></div>
+    </div>
+    <div class="conv-res" id="convRes"></div>
   </div>
 </div>
 
@@ -380,7 +416,8 @@ const INDEP = [
 
 // Jours fériés officiels du Mali (dates grégoriennes) : [mois, jour, nom FR, nom EN].
 const FETES_MALI = [
-  [1,1,"Jour de l'an","New Year's Day"], [1,20,"Fête de l'Armée",'Armed Forces Day'],
+  [1,1,"Jour de l'an","New Year's Day"], [1,14,'Journée de la souveraineté retrouvée','Day of Regained Sovereignty'],
+  [1,20,"Fête de l'Armée",'Armed Forces Day'],
   [3,26,'Journée des Martyrs',"Martyrs' Day"], [5,1,'Fête du Travail',"Workers' Day"],
   [5,25,"Journée de l'Afrique",'Africa Day']
 ];
@@ -686,6 +723,7 @@ function renderToday(now, lun){
   $('lunarDate').replaceChildren(ay(LUNAR_MONTHS[lun.m-1]), ay(num(lun.d)));
   put($('lunarYear'), num(lun.y));
   put($('gregDate'), gregText(now.getFullYear(), now.getMonth()+1, now.getDate()));
+  renderRamadan(now);
 }
 
 /* --- Calendrier (mois lunaire songhay ; jours grégoriens en petit) --- */
@@ -836,6 +874,109 @@ $('btnPlace').addEventListener('click', () => {
     renderPlace(); lastLunarKey = ''; tick();
   }, () => {}, {enableHighAccuracy: false, timeout: 20000, maximumAge: 3600000});
 });
+/* =====================================================================
+   HEURES DU JEÛNE, CONVERTISSEUR, PROCHAINES FÊTES
+   ===================================================================== */
+const EN_ = (document.documentElement.lang || '').startsWith('en');
+const T_ = EN_ ? {sahur:'End of suhoor (dawn)', iftar:'Breaking the fast (sunset)', today:'today',
+                   g2l:'Gregorian → Songhay', l2g:'Songhay → Gregorian',}
+               : {sahur:'Fin du sahur (aube)', iftar:'Rupture du jeûne (coucher du soleil)', today:"aujourd'hui",
+                   g2l:'Grégorien → songhay', l2g:'Songhay → grégorien',};
+/* Lever ou coucher du soleil à une hauteur donnée (aube : soleil à 18° sous l'horizon). */
+function soleilMs(y, m, d, haut, lever){
+  const rad = Math.PI/180;
+  const n = Math.round(gregToJd(y,m,d) + 0.5 - 2451545.0);
+  const [LAT, LON] = lieu();
+  const Js = n - LON/360;
+  const M = (357.5291 + 0.98560028*Js) % 360;
+  const C = 1.9148*Math.sin(M*rad) + 0.02*Math.sin(2*M*rad) + 0.0003*Math.sin(3*M*rad);
+  const L = (M + C + 180 + 102.9372) % 360;
+  const Jt = 2451545.0 + Js + 0.0053*Math.sin(M*rad) - 0.0069*Math.sin(2*L*rad);
+  const dec = Math.asin(Math.sin(L*rad)*Math.sin(23.4397*rad));
+  const cw = (Math.sin(haut*rad) - Math.sin(LAT*rad)*Math.sin(dec)) / (Math.cos(LAT*rad)*Math.cos(dec));
+  const w = Math.acos(Math.max(-1, Math.min(1, cw))) / rad;
+  return (Jt + (lever ? -w : w)/360 - 2440587.5) * 86400000;
+}
+const ICO_AUBE = '<svg viewBox="0 0 24 24"><path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 4v4M9.5 6.5L12 4l2.5 2.5M4.5 11.5l1.5 1M19.5 11.5l-1.5 1"/></svg>';
+const ICO_COUCHER = '<svg viewBox="0 0 24 24"><path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 4v4M9.5 5.5L12 8l2.5-2.5M4.5 11.5l1.5 1M19.5 11.5l-1.5 1"/></svg>';
+const ICO_SOLEIL = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>';
+const ICO_LUNE = '<svg viewBox="0 0 24 24"><path d="M16 4.5A8 8 0 1 0 16 19.5A6.5 6.5 0 0 1 16 4.5z"/></svg>';
+const ICO_FLECHE = '<svg viewBox="0 0 24 24"><path d="M19 12H5M9 8l-4 4 4 4"/></svg>';
+const aubeMs = (y,m,d) => soleilMs(y, m, d, -18, true);
+const heureTxt = ms => { const t = new Date(ms); return num2(t.getHours()) + ':' + num2(t.getMinutes()); };
+
+/* 1. Heures du jeûne : affichées pendant le Ramadan (le jour de jeûne en cours ou le suivant). */
+function renderRamadan(now){
+  const box = $('ramBox');
+  let t = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (now.getTime() >= sunsetMs(t.getFullYear(), t.getMonth()+1, t.getDate())) t = new Date(t.getFullYear(), t.getMonth(), t.getDate()+1);
+  const y = t.getFullYear(), m = t.getMonth()+1, d = t.getDate();
+  if (lunarOf(y, m, d).m !== 9) { box.replaceChildren(); return; }
+  // Icônes sans texte : soleil qui se lève (fin du sahur) et soleil qui se couche (rupture du jeûne).
+  const ligneH = (icone, txt, ms) => { const e = document.createElement('div'); e.className = 'ram-l'; e.title = txt;
+    const p = document.createElement('i'); p.className = 'fete-ram';
+    const ic = document.createElement('span'); ic.className = 'ram-ico'; ic.innerHTML = icone; ic.setAttribute('aria-label', txt);
+    e.append(p, ic, ay(heureTxt(ms))); return e; };
+  box.replaceChildren(ligneH(ICO_AUBE, T_.sahur, aubeMs(y,m,d)), ligneH(ICO_COUCHER, T_.iftar, sunsetMs(y,m,d)));
+}
+
+/* 2. Convertisseur de dates (grégorien <-> songhay). */
+let convMode = 'g', convL = null;
+function jourSemaine(y, m, d){ return new Date(y, m-1, d, 12).getDay(); }
+function renderConv(){
+  const res = $('convRes');
+  $('convTabG').classList.toggle('on', convMode === 'g');
+  $('convTabL').classList.toggle('on', convMode === 'l');
+  $('convG').style.display = convMode === 'g' ? '' : 'none';
+  $('convL').style.display = convMode === 'l' ? '' : 'none';
+  if (convMode === 'g') {
+    const v = $('convDate').value.split('-').map(Number);
+    if (v.length !== 3 || !v[0]) { res.replaceChildren(); return; }
+    const l = lunarOf(v[0], v[1], v[2]);
+    const big = document.createElement('div'); big.className = 'conv-big';
+    big.append(ay(LUNAR_MONTHS[l.m-1]), ay(' ' + num(l.d)));
+    res.replaceChildren(ay(DAYS_FULL[jourSemaine(v[0], v[1], v[2])]), big, ay(num(l.y)));
+  } else {
+    const len = lunarMonthSpan(convL.y, convL.m).len;
+    if (convL.d > len) convL.d = len;
+    put($('convLD'), num(convL.d));
+    put($('convLM'), LUNAR_MONTHS[convL.m-1]);
+    put($('convLY'), num(convL.y + LUNAR_YEAR_OFFSET));
+    const g = jdToGreg(islToJd(convL.y, convL.m, convL.d) + adjust());
+    const big = document.createElement('div'); big.className = 'conv-big';
+    big.append(ay(gregText(g.y, g.m, g.d)));
+    const o = document.createElement('div'); o.className = 'ordre';
+    o.append(ay(LBL.hadu + '/' + LBL.han + '/' + LBL.jiiri));
+    res.replaceChildren(ay(DAYS_FULL[jourSemaine(g.y, g.m, g.d)]), big, o);
+  }
+}
+$('convTabG').innerHTML = ICO_SOLEIL + ICO_FLECHE + ICO_LUNE;
+$('convTabL').innerHTML = ICO_LUNE + ICO_FLECHE + ICO_SOLEIL;
+$('convTabG').title = T_.g2l; $('convTabG').setAttribute('aria-label', T_.g2l);
+$('convTabL').title = T_.l2g; $('convTabL').setAttribute('aria-label', T_.l2g);
+$('convTabG').addEventListener('click', () => { convMode = 'g'; renderConv(); });
+$('convTabL').addEventListener('click', () => { convMode = 'l'; renderConv(); });
+$('convDate').addEventListener('input', renderConv);
+document.querySelectorAll('#convL [data-champ]').forEach(row => {
+  row.addEventListener('click', e => {
+    const b = e.target.closest('[data-pas]'); if (!b) return;
+    const pas = +b.dataset.pas, ch = row.dataset.champ;
+    if (ch === 'd') { const len = lunarMonthSpan(convL.y, convL.m).len; convL.d = ((convL.d - 1 + pas + len) % len) + 1; }
+    if (ch === 'm') { convL.m += pas; if (convL.m < 1) { convL.m = 12; convL.y--; } if (convL.m > 12) { convL.m = 1; convL.y++; } }
+    if (ch === 'y') convL.y = Math.max(1300, Math.min(1650, convL.y + pas));
+    renderConv();
+  });
+});
+$('btnConv').addEventListener('click', () => {
+  const n = new Date();
+  $('convDate').value = n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  const r = jdToIsl(gregToJd(n.getFullYear(), n.getMonth()+1, n.getDate()) - adjust());
+  convL = {y: r.y, m: r.m, d: r.d};
+  renderConv();
+  $('convSheetBg').classList.add('open');
+});
+$('convSheetBg').addEventListener('click', e => { if (e.target === $('convSheetBg')) $('convSheetBg').classList.remove('open'); });
+
 $('btnAdjust').addEventListener('click', () => { renderAdj(); $('adjSheetBg').classList.add('open'); });
 $('adjSheetBg').addEventListener('click', e => { if (e.target === $('adjSheetBg')) $('adjSheetBg').classList.remove('open'); });
 $('adjPlus').addEventListener('click', () => { setAdjust(adjust() + 1); setViewToToday(); renderAdj(); tick(); renderCalendar(); });

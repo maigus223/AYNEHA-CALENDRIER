@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 MAIGUS
 // Changer VERSION à chaque mise en ligne (même numéro que version.txt).
-const VERSION = '2.0.6';
+const VERSION = '2.1.2';
 const CACHE_NAME = 'horloge-ayneha-' + VERSION;
 const ASSETS = [
   './',
