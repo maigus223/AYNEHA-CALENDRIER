@@ -152,6 +152,21 @@
   .ram-ico svg,  .conv-tab svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}
   .ram-ico{color:var(--orange-soft);display:inline-flex;}
   .conv-tab{display:inline-flex;align-items:center;gap:.15rem;}
+  .tirer{position:fixed;top:0;left:50%;width:2.6rem;height:2.6rem;margin-left:-1.3rem;border-radius:50%;background:var(--night-800,#132038);border:1px solid var(--orange);color:var(--orange-soft);display:flex;align-items:center;justify-content:center;z-index:25;transform:translateY(-3rem);opacity:0;transition:opacity .15s;pointer-events:none;}
+  .tirer svg{width:1.4rem;height:1.4rem;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .tirer.pret{background:var(--orange);color:#fff;}
+  .maj{gap:1rem;}
+  .maj-ico svg{width:3.4rem;height:3.4rem;fill:none;stroke:var(--orange-soft);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .maj-ico.tourne svg{animation:tourne 1s linear infinite;}
+  @keyframes tourne{to{transform:rotate(360deg);}}
+  .maj-ver{font-size:1.8rem;color:var(--ink);display:flex;justify-content:center;}
+  .maj-barre{width:70%;height:.5rem;border-radius:999px;background:rgba(243,236,224,0.15);overflow:hidden;display:none;}
+  .maj-barre span{display:block;height:100%;width:0;background:var(--orange);transition:width .2s;}
+  .maj-btn{width:4rem;height:4rem;border-radius:50%;background:var(--orange);border-color:var(--orange);color:#fff;display:none;}
+  .maj-btn svg{width:2rem;height:2rem;}
+  .dico{display:inline-flex;align-items:center;align-self:center;width:.75em;height:.75em;margin:0 .15em;opacity:.85;}
+  .dico svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .dico-lune svg{fill:currentColor;stroke:none;}
   .conv-tabs{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
   .conv-tab{font:600 .85rem/1 system-ui,sans-serif;padding:.55rem .8rem;border-radius:999px;border:1px solid rgba(243,236,224,0.25);color:var(--ink-dim);cursor:pointer;}
   .conv-tab.on{background:var(--orange);border-color:var(--orange);color:#fff;}
@@ -272,6 +287,17 @@
     <div class="small" id="dsGreg"></div>
     <div class="ordre" id="ordreSheet"></div>
     <div class="fetes" id="dsFetes"></div>
+  </div>
+</div>
+
+<!-- Mise à jour depuis ayneha.org (application Android seulement) -->
+<div class="tirer" id="tirer"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg></div>
+<div class="sheet-bg" id="majSheetBg">
+  <div class="sheet maj">
+    <div class="maj-ico" id="majIco"></div>
+    <div class="maj-ver" id="majVer"></div>
+    <div class="maj-barre" id="majBarre"><span id="majPct"></span></div>
+    <span class="ico maj-btn" id="majBtn" role="button" aria-label="download"></span>
   </div>
 </div>
 
@@ -448,6 +474,12 @@ function ay(text){
   return box;
 }
 function put(el, text){ el.replaceChildren(ay(text)); }
+// Petit soleil (date grégorienne) ou petite lune (date lunaire songhay) devant une date.
+const DICO = {
+  sol: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12h2.5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>',
+  lune: '<svg viewBox="0 0 24 24"><path d="M16 4.5A8 8 0 1 0 16 19.5A6.5 6.5 0 0 1 16 4.5z"/></svg>'
+};
+function dico(k){ const e = document.createElement('span'); e.className = 'dico dico-' + k; e.innerHTML = DICO[k]; e.setAttribute('aria-hidden', 'true'); return e; }
 const num = n => String(n).split('').map(c => DIG[+c]).join('');
 const num2 = n => num(String(n).padStart(2,'0'));
 
@@ -642,8 +674,8 @@ put($('lblJiiri'), LBL.jiiri);
 /* Mention : comment se lit une date en songhay (mois/jour/année). */
 for (const id of ['ordreMain', 'ordreSheet']) {
   const e = $(id);
-  const t = document.createElement('span'); t.className = 'trad'; t.textContent = 'mois / jour / année';
-  e.replaceChildren(ay(LBL.hadu + '/' + LBL.han + '/' + LBL.jiiri), t);
+  const t = document.createElement('span'); t.className = 'trad'; t.textContent = 'jour / mois / année';
+  e.replaceChildren(ay(LBL.han + '/' + LBL.hadu + '/' + LBL.jiiri), t);
 }
 put($('adjLbl'), LBL.hadu);
 
@@ -652,9 +684,11 @@ function timeText(now, withSeconds){
   if (withSeconds) t += ':' + num2(now.getSeconds());
   return t;
 }
-// Ordre songhay : mois, puis jour, puis année (le mois se lit en premier, à droite).
+// Ordre songhay pour la date lunaire : le mois, puis le jour (le mois se lit en premier, à droite).
 function lunarText(l){ return LUNAR_MONTHS[l.m-1] + ' ' + num(l.d); }
-function gregText(y,m,d){ return num2(m) + '/' + num2(d) + '/' + num(y + GREG_YEAR_OFFSET); }
+// Dates grégoriennes au format européen (jour/mois/année), en chiffres AYNEHA.
+// Les dates lunaires restent au format songhay (mois, puis jour).
+function gregText(y,m,d){ return num2(d) + '/' + num2(m) + '/' + num(y + GREG_YEAR_OFFSET); }
 // « Mardi 15 » : nom du jour, puis numéro du jour.
 function dayNumText(dow, d){ return DAYS_FULL[dow] + ' ' + num(d); }
 
@@ -720,9 +754,9 @@ function tick(){
 function renderToday(now, lun){
   put($('dayName'), DAYS_FULL[now.getDay()]);
   drawMoon($('moonToday'), now);
-  $('lunarDate').replaceChildren(ay(LUNAR_MONTHS[lun.m-1]), ay(num(lun.d)));
+  $('lunarDate').replaceChildren(dico('lune'), ay(LUNAR_MONTHS[lun.m-1]), ay(num(lun.d)));
   put($('lunarYear'), num(lun.y));
-  put($('gregDate'), gregText(now.getFullYear(), now.getMonth()+1, now.getDate()));
+  $('gregDate').replaceChildren(dico('sol'), ay(gregText(now.getFullYear(), now.getMonth()+1, now.getDate())));
   renderRamadan(now);
 }
 
@@ -750,7 +784,7 @@ function renderCalendar(){
   $('btnToday').classList.toggle('idle', t.y === viewY && t.m === viewM && !selectedKey);
 
   // Titre : le mois lunaire songhay et son jiiri.
-  $('calGreg').replaceChildren(ay(LUNAR_MONTHS[viewM-1]), ay(' ' + num(viewY + LUNAR_YEAR_OFFSET)));
+  $('calGreg').replaceChildren(dico('lune'), ay(LUNAR_MONTHS[viewM-1]), ay(' ' + num(viewY + LUNAR_YEAR_OFFSET)));
 
   // Sous-titre : les mois grégoriens qui chevauchent ce mois lunaire.
   const g0 = jdToGreg(span.start), g1 = jdToGreg(span.start + span.len - 1);
@@ -764,6 +798,7 @@ function renderCalendar(){
     gm++; if (gm > 12) { gm = 1; gy++; }
     if (cl.childNodes.length > 6) break;
   }
+  cl.prepend(dico('sol'));
 
   const wd = $('weekdays');
   wd.replaceChildren();
@@ -836,10 +871,10 @@ function openDay(y, m, d){
   const date = new Date(y, m, d, 12);
   const lun = lunarOf(y, m+1, d);
   put($('dsDayName'), dayNumText(date.getDay(), lun.d));
-  put($('dsLunar'), LUNAR_MONTHS[lun.m-1]);
+  $('dsLunar').replaceChildren(dico('lune'), ay(LUNAR_MONTHS[lun.m-1]));
   put($('dsYear'), num(lun.y));
   drawMoon($('dsMoon'), date);
-  put($('dsGreg'), gregText(y, m+1, d));
+  $('dsGreg').replaceChildren(dico('sol'), ay(gregText(y, m+1, d)));
   const fe = fetesDu(y, m+1, d, lun);
   const ligne = (cls, f) => { const e = document.createElement('div'); e.className = 'fete-ligne';
     const p = document.createElement('i'); p.className = cls; e.append(p, document.createTextNode(f[0])); return e; };
@@ -934,7 +969,7 @@ function renderConv(){
     if (v.length !== 3 || !v[0]) { res.replaceChildren(); return; }
     const l = lunarOf(v[0], v[1], v[2]);
     const big = document.createElement('div'); big.className = 'conv-big';
-    big.append(ay(LUNAR_MONTHS[l.m-1]), ay(' ' + num(l.d)));
+    big.append(dico('lune'), ay(LUNAR_MONTHS[l.m-1]), ay(' ' + num(l.d)));
     res.replaceChildren(ay(DAYS_FULL[jourSemaine(v[0], v[1], v[2])]), big, ay(num(l.y)));
   } else {
     const len = lunarMonthSpan(convL.y, convL.m).len;
@@ -944,9 +979,9 @@ function renderConv(){
     put($('convLY'), num(convL.y + LUNAR_YEAR_OFFSET));
     const g = jdToGreg(islToJd(convL.y, convL.m, convL.d) + adjust());
     const big = document.createElement('div'); big.className = 'conv-big';
-    big.append(ay(gregText(g.y, g.m, g.d)));
+    big.append(dico('sol'), ay(gregText(g.y, g.m, g.d)));
     const o = document.createElement('div'); o.className = 'ordre';
-    o.append(ay(LBL.hadu + '/' + LBL.han + '/' + LBL.jiiri));
+    o.append(ay(LBL.han + '/' + LBL.hadu + '/' + LBL.jiiri));
     res.replaceChildren(ay(DAYS_FULL[jourSemaine(g.y, g.m, g.d)]), big, o);
   }
 }
@@ -976,6 +1011,61 @@ $('btnConv').addEventListener('click', () => {
   $('convSheetBg').classList.add('open');
 });
 $('convSheetBg').addEventListener('click', e => { if (e.target === $('convSheetBg')) $('convSheetBg').classList.remove('open'); });
+
+/* =====================================================================
+   MISE À JOUR DEPUIS AYNEHA.ORG (application Android seulement)
+   Tirer l'écran vers le bas -> l'application cherche une nouvelle version.
+   Tout est en icônes et en chiffres AYNEHA.
+   ===================================================================== */
+if (App && App.checkUpdate) {
+  const IC = {
+    verif:   '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>',
+    ajour:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
+    dispo:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v8M8.5 11.5L12 15l3.5-3.5"/></svg>',
+    telech:  '<svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>',
+    pret:    '<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>',
+    autoriser:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+    erreur:  '<svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9z"/><path d="M4 4l16 16"/></svg>',
+    refuse:  '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>'
+  };
+  const verTxt = v => String(v || '').split('').map(c => /[0-9]/.test(c) ? DIG[+c] : c).join('');
+  $('majBtn').innerHTML = IC.telech;
+  const ouvrir = () => $('majSheetBg').classList.add('open');
+  window.aynehaMaj = info => {
+    ouvrir();
+    const e = info.etat;
+    $('majIco').innerHTML = IC[e] || IC.erreur;
+    $('majIco').classList.toggle('tourne', e === 'verif');
+    if (e === 'ajour' || e === 'dispo') put($('majVer'), verTxt(info.version)); else if (e !== 'telech') $('majVer').replaceChildren();
+    $('majBarre').style.display = e === 'telech' ? 'block' : 'none';
+    if (e === 'telech') { $('majPct').style.width = (info.pct || 0) + '%'; put($('majVer'), num(info.pct || 0) + '%'); }
+    $('majBtn').style.display = (e === 'dispo' || e === 'autoriser') ? 'inline-flex' : 'none';
+  };
+  $('majBtn').addEventListener('click', () => { $('majBtn').style.display = 'none'; App.downloadUpdate(); });
+  $('majSheetBg').addEventListener('click', e => { if (e.target === $('majSheetBg')) $('majSheetBg').classList.remove('open'); });
+
+  // Geste « tirer vers le bas » quand la page est tout en haut.
+  let y0 = null, x0 = 0, dy = 0;
+  const tirer = $('tirer'), SEUIL = 110;
+  document.addEventListener('touchstart', e => {
+    if (window.scrollY > 0 || document.querySelector('.sheet-bg.open') || $('night').classList.contains('open')) { y0 = null; return; }
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; dy = 0;
+  }, {passive: true});
+  document.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    dy = e.touches[0].clientY - y0;
+    const dx = Math.abs(e.touches[0].clientX - x0);
+    if (dy <= 0 || dx > dy) { tirer.style.opacity = 0; return; }
+    const d = Math.min(dy, SEUIL * 1.3);
+    tirer.style.opacity = Math.min(1, d / SEUIL);
+    tirer.style.transform = `translateY(${d * 0.6 - 48}px) rotate(${d * 2}deg)`;
+    tirer.classList.toggle('pret', dy >= SEUIL);
+  }, {passive: true});
+  document.addEventListener('touchend', () => {
+    if (y0 !== null && dy >= SEUIL) App.checkUpdate();
+    y0 = null; dy = 0; tirer.style.opacity = 0; tirer.style.transform = 'translateY(-3rem)'; tirer.classList.remove('pret');
+  });
+}
 
 $('btnAdjust').addEventListener('click', () => { renderAdj(); $('adjSheetBg').classList.add('open'); });
 $('adjSheetBg').addEventListener('click', e => { if (e.target === $('adjSheetBg')) $('adjSheetBg').classList.remove('open'); });
